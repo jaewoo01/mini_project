@@ -1,0 +1,36 @@
+{% extends 'base_layout.html' %} {# base_layout.html 상속 #}
+
+{% block page_title %}재료 개수 입력{% endblock %} {# 페이지 제목 설정 #}
+
+{% block content %} {# base_layout.html의 'content' 블록에 내용 삽입 #}
+<div class="content_section">
+    <h2>🛒 사용할 재료 개수는?</h2>
+    <p class="guide_text">집에 있는 재료가 몇 가지인지 숫자로 입력해주세요. (2개에서 10개 사이)</p>
+    <form method="POST" action="{{ url_for('home_dish_ingredient_count_input') }}"> {# Flask 라우트 'home_dish_ingredient_count_input'로 POST 요청 #}
+        <label for="ingredient_count_input" class="sr_only">재료 개수:</label> {# 스크린 리더용 레이블 #}
+        <input
+            type="number"
+            id="ingredient_count_input"
+            name="ingredient_count" {# Flask의 request.form.get()에서 'ingredient_count'와 일치 #}
+            min="2"
+            max="10"
+            placeholder="예: 3"
+            required
+            aria-label="재료 개수 입력" {# 접근성을 위한 레이블 #}
+        >
+        <input type="submit" value="다음 단계로">
+    </form>
+    {% if error_message %} {# Flask에서 전달된 오류 메시지가 있을 경우 표시 #}
+        <p class="error_message">{{ error_message }}</p>
+    {% endif %}
+</div>
+
+<style>
+    /* --- 안내 텍스트 스타일 */
+    .guide_text {
+        font-size: 1.1em;
+        color: #666;
+        margin-bottom: 25px;
+    }
+</style>
+{% endblock %}

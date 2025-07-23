@@ -1,0 +1,37 @@
+{% extends 'base_layout.html' %} {# base_layout.html 상속 #}
+
+{% block page_title %}재료 입력 및 요리 선택{% endblock %} {# 페이지 제목 설정 #}
+
+{% block content %} {# base_layout.html의 'content' 블록에 내용 삽입 #}
+<div class="content_section">
+    <h2>🍚 재료를 입력해주세요</h2>
+    <p class="guide_text">집에 있는 재료들을 하나씩 입력해주세요. 입력하신 재료를 바탕으로 요리를 추천해 드립니다.</p>
+    <form method="POST" action="{{ url_for('dish_selection_page') }}"> {# Flask 라우트 'dish_selection_page'로 POST 요청 #}
+        {% for i in range(1, ingredient_count + 1) %} {# Flask에서 전달된 'ingredient_count'만큼 입력 필드 생성 #}
+            <div class="ingredient_input_group">
+                <label for="ingredient_input_{{ i }}" class="sr_only">재료 {{ i }}:</label> {# 스크린 리더용 레이블 #}
+                <input
+                    type="text"
+                    id="ingredient_input_{{ i }}"
+                    name="ingredient_{{ i }}" {# Flask의 request.form에서 'ingredient_1', 'ingredient_2' 등으로 접근 #}
+                    placeholder="재료 {{ i }} 입력"
+                    required
+                    aria-label="재료 {{ i }} 입력" {# 접근성을 위한 레이블 #}
+                >
+            </div>
+        {% endfor %}
+        <input type="submit" value="요리 찾기">
+    </form>
+</div>
+
+<style>
+    /* --- 재료 입력 필드 그룹 간 간격 설정 */
+    .ingredient_input_group {
+        margin-bottom: 15px; /* 각 입력 필드 아래 여백 추가 */
+    }
+    .ingredient_input_group input[type="text"] {
+        width: calc(100% - 30px); /* 부모 컨테이너에 맞게 너비 조정 */
+        max-width: 400px; /* 최대 너비 제한 */
+    }
+</style>
+{% endblock %}

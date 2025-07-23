@@ -1,0 +1,116 @@
+{% extends 'base_layout.html' %} {# base_layout.html 상속 #}
+
+{% block page_title %}오늘 뭐 먹지?{% endblock %} {# 페이지 제목 설정 #}
+
+{% block content %} {# base_layout.html의 'content' 블록에 내용 삽입 #}
+<div class="content_section main_choice_section">
+    <h1>오늘 뭐 먹지? 🍽️</h1>
+    <p class="intro_text">집에서 직접 요리할까요, 아니면 밖에서 맛있는 음식을 사 먹을까요?</p>
+
+    <form action="{{ url_for('handle_food_choice') }}" method="post"> {# Flask 라우트 'handle_food_choice'로 POST 요청 #}
+        <div class="button_container" style="display:flex; justify-content:center; gap:30px;">
+            {# '집에서 먹을래' 버튼 #}
+            <button class="option_button" type="submit" name="where" value="home">
+                <span class="emoji">🏠</span>
+                집에서 먹을래
+            </button>
+            {# '밖에서 먹을래' 버튼 #}
+            <button class="option_button" type="submit" name="where" value="out">
+                <span class="emoji">🍜</span>
+                밖에서 먹을래
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    /* --- 메인 선택 섹션 스타일 */
+    .main_choice_section {
+        padding: 40px 20px;
+    }
+
+    .main_choice_section h1 {
+        font-size: 2.8em;
+        margin-bottom: 25px;
+        color: #ff6f61;
+    }
+
+    .intro_text {
+        font-size: 1.3em;
+        color: #666;
+        margin-bottom: 40px;
+    }
+
+    /* --- 버튼 컨테이너 스타일 */
+    .button_container {
+        display: flex;
+        flex-wrap: wrap; /* 오버플로우 시 버튼을 다음 줄로 감싸기 */
+        justify-content: center;
+        gap: 30px; /* 버튼 간 간격 */
+        margin-top: 30px;
+    }
+
+    /* --- 옵션 버튼 스타일 */
+    .option_button {
+        background: #ffe0e0; /* 부드러운 핑크 배경 */
+        border: none;
+        border-radius: 20px; /* 더 둥근 모서리 */
+        padding: 35px 55px; /* 패딩 증가 */
+        font-size: 1.6em; /* 폰트 크기 증가 */
+        font-weight: 600; /* 폰트 굵기 */
+        cursor: pointer;
+        box-shadow: 4px 4px 15px rgba(0,0,0,0.15); /* 더 강한 그림자 */
+        transition: all 0.3s ease; /* 모든 속성 부드러운 전환 */
+        color: #333; /* 텍스트 색상 */
+        display: flex; /* 이모지와 텍스트의 세로 정렬을 위해 flex 사용 */
+        flex-direction: column; /* 세로 정렬 */
+        align-items: center; /* 중앙 정렬 */
+        min-width: 250px; /* 최소 너비 */
+    }
+
+    .option_button:hover {
+        background-color: #ffbdbd; /* 호버 시 색상 변경 */
+        transform: translateY(-5px); /* 호버 시 약간 위로 이동 */
+        box-shadow: 6px 6px 20px rgba(0,0,0,0.2); /* 더 강한 그림자 */
+    }
+
+    .option_button .emoji {
+        font-size: 3em; /* 이모지 크기 증가 */
+        display: block; /* 텍스트와 분리하기 위해 블록 요소 */
+        margin-bottom: 15px; /* 이모지 하단 여백 */
+        transition: transform 0.3s ease; /* 부드러운 변형 전환 */
+    }
+
+    .option_button:hover .emoji {
+        transform: scale(1.1); /* 호버 시 이모지 확대 */
+    }
+
+    /* --- 미디어 쿼리 - 모바일 (화면 너비 600px 이하) */
+    @media (max-width: 600px) {
+        .main_choice_section h1 {
+            font-size: 2.2em;
+        }
+        .intro_text {
+            font-size: 1.1em;
+        }
+        .option_button {
+            width: calc(100% - 40px); /* 모바일에서 전체 너비 */
+            padding: 25px 30px;
+            font-size: 1.4em;
+        }
+        .option_button .emoji {
+            font-size: 2.5em;
+        }
+        .button_container {
+            flex-direction: column; /* 모바일에서 세로 정렬 */
+            gap: 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{# main_food_choice.html에서는 "첫 페이지로 돌아가기" 버튼을 표시하지 않기 #}
+{% block footer_section %}
+
+
+{% endblock %}

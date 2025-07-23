@@ -1,0 +1,183 @@
+{% extends 'base_layout.html' %} {# base_layout.html 상속 #}
+
+{% block page_title %}요리 선택{% endblock %} {# 페이지 제목 설정 #}
+
+{% block content %} {# base_layout.html의 'content' 블록에 내용 삽입 #}
+<div class="content_section">
+    <h2>내가 입력한 재료:</h2>
+    {# 입력된 재료 목록을 쉼표로 구분하여 표시 #}
+    <p class="input_ingredients_display">{{ input_ingredients_list | join(', ') }}</p>
+
+    <h2>이 재료로 만들 수 있는 요리:</h2>
+
+    {% if recommended_dish_list %} {# 추천 요리 목록이 있을 경우 #}
+        <form method="POST" action="{{ url_for('view_recipe') }}"> {# Flask 라우트 'view_recipe'로 POST 요청 #}
+            {# 사용자 입력 재료를 hidden input으로 전달하여 다음 페이지에서 활용 #}
+            <input type="hidden" name="user_ingredients_str" value="{{ input_ingredients_list | join(',') }}">
+            
+            <div class="dish_selection_grid">
+                {% for dish in recommended_dish_list %} {# 추천 요리 목록을 반복하여 표시 #}
+                    <label class="dish_card_label">
+                        {# 라디오 버튼: name은 모두 같고, value는 요리 번호 (단일 선택) #}
+                        <input type="radio" name="selected_dish_number" value="{{ dish.food_number }}" required class="dish_radio_button">
+                        <div class="card_element dish_card"> {# base_layout.html의 카드 스타일 상속 #}
+                            <img src="{{ dish.image_url }}" alt="{{ dish.food_name }} 요리 이미지" onerror="this.onerror=null;this.src='https://placehold.co/250x150/cccccc/333333?text=이미지+없음';">
+                            <h4>{{ dish.food_name }}</h4>
+                            <p class="dish_type_kcal">{{ dish.types_cooking }} | {{ dish.kcal }} kcal</p> {# 음식 종류 및 칼로리 표시 #}
+                            <p class="dish_description">{{ dish.description }}</p>
+                        </div>
+                    </label>
+                {% endfor %}
+            </div>
+            <input type="submit" value="이 요리 선택하기" class="dish_select_button">
+        </form>
+    {% else %} {# 추천 요리 목록이 없을 경우 #}
+        <p class="info_message">죄송합니다. 입력하신 재료로는 추천할 만한 요리가 없습니다. 다른 재료를 시도해보세요!</p>
+    {% endif %}
+</div>
+
+<style>
+    /* --- 입력 재료 목록 표시 스타일 */
+    .input_ingredients_display {
+        font-size: 1.1em;
+        font-weight: bold;
+        color: #555;
+        margin-bottom: 30px;
+        background-color: #f9f9f9;
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid #eee;
+    }
+
+    /* --- 요리 선택 그리드 컨테이너 */
+    .dish_selection_grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* 반응형 그리드: 최소 250px, 최대 1fr */
+        gap: 20px; /* 카드 간 간격 */
+        justify-items: center; /* 그리드 아이템 중앙 정렬 */
+        margin-top: 30px;
+        margin-bottom: 40px;
+    }
+
+    /* --- 각 요리 카드 라벨 스타일 */
+    .dish_card_label {
+        display: block; /* 전체 카드를 클릭 가능하게 만들기 */
+        cursor: pointer; /* 호버 시 포인터 */
+        position: relative; /* 라디오 버튼 위치 지정을 위해 */
+        border-radius: 15px;
+        transition: all 0.2s ease; /* 부드러운 전환 효과 */
+        overflow: hidden; /* 카드 둥근 모서리 */
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .dish_card_label:hover {
+        transform: translateY(-5px); /* 호버 시 약간 위로 이동 */
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15); /* 더 강한 그림자 */
+    }
+
+    /* --- 실제 라디오 버튼 숨기기 */
+    .dish_radio_button {
+        position: absolute;
+        opacity: 0; /* 투명하게 숨기기 */
+        width: 0;
+        height: 0;
+    }
+
+    /* --- 라디오 버튼 선택 시 요리 카드 스타일 */
+    .dish_radio_button:checked + .dish_card {
+        border: 3px solid #ff6f61; /* 선택 시 테두리 강조 */
+        box-shadow: 0 0 0 5px rgba(255, 111, 97, 0.3); /* 선택 시 외부 그림자 */
+        background-color: #fff5f5; /* 선택 시 배경 색상 변경 */
+    }
+
+    /* --- 요리 카드 스타일 (base_layout.html의 .card_element 스타일 상속 및 추가) */
+    .dish_card {
+        padding: 15px; /* 내부 패딩 조정 */
+        margin: 0; /* 간격은 그리드 gap 사용 */
+        min-height: 320px; /* 그리드 내에서 균일한 높이 */
+        width: 100%;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column; /* 콘텐츠 세로 정렬 */
+        justify-content: space-between; /* 콘텐츠 간격 균등 분배 */
+        text-align: center;
+    }
+
+    .dish_card img {
+        width: 100%;
+        height: 150px; /* 고정 이미지 높이 */
+        object-fit: cover; /* 잘리지 않고 채우기 */
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+
+    .dish_card h4 {
+        font-size: 1.2em;
+        margin-bottom: 8px;
+        color: #333;
+        white-space: normal;
+        word-break: keep-all;
+        overflow: visible;
+        text-overflow: clip;
+        display: block;
+    }
+
+    /* --- 음식 종류 및 칼로리 텍스트 스타일 */
+    .dish_type_kcal {
+        font-size: 0.9em;
+        color: #888;
+        margin-bottom: 8px;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+    }
+
+    .dish_description {
+        font-size: 0.9em;
+        color: #666;
+        flex-grow: 1; /* 설명이 남은 공간 채우기 */
+        margin-bottom: 10px;
+        white-space: normal;
+        word-break: keep-all;
+        overflow: visible;
+        text-overflow: clip;
+        display: block;
+    }
+
+    /* --- 요리 선택 버튼 스타일 */
+    .dish_select_button {
+        background-color: #ff6f61; /* 강조 색상 버튼 */
+        color: white; /* 흰색 텍스트 */
+        padding: 15px 40px;
+        font-size: 1.2em;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(255, 111, 97, 0.3);
+        margin-top: 20px;
+    }
+
+    .dish_select_button:hover {
+        background-color: #ff4d4d; /* 호버 시 색상 변경 */
+        transform: translateY(-3px); /* 약간 위로 이동 */
+        box-shadow: 0 6px 15px rgba(255, 111, 97, 0.4); /* 더 강한 그림자 */
+    }
+
+    /* --- 미디어 쿼리 - 모바일 (화면 너비 600px 이하) */
+    @media (max-width: 600px) {
+        .dish_selection_grid {
+            grid-template-columns: 1fr; /* 모바일에서 1열 */
+            gap: 15px;
+        }
+        .dish_card_label {
+            width: 100%;
+        }
+        .dish_select_button {
+            width: 100%;
+            box-sizing: border-box; /* 너비에 패딩 포함 */
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,242 @@
+{% extends 'base_layout.html' %} {# base_layout.html 상속 #}
+
+{% block page_title %}모자란 재료 구매 - {{ recipe_food_name }}{% endblock %} {# 페이지 제목 설정 #}
+
+{% block content %}
+<div class="content_section">
+    <h2>🛒 "{{ recipe_food_name }}"을(를) 만들기 위한 모자란 재료!</h2>
+    <p class="guide_text">이 요리를 만들려면 아래 재료들이 더 필요해요!</p>
+
+    <div class="missing_items_grid"> {# 새로운 그리드 컨테이너 추가 #}
+        {% if missing_ingredients %}
+            {% for ingredient_info in missing_ingredients %}
+                <div class="missing_ingredient_item">
+                    <div class="ingredient_name_header">
+                        <h4>{{ ingredient_info.name }}</h4>
+                    </div>
+                    <div class="seller_grid">
+                        {% for seller in ingredient_info.sellers %}
+                        <a href="{{ seller.link }}" target="_blank" rel="noopener noreferrer" class="seller_card">
+                            <div class="seller_image_wrapper">
+                                <img src="{{ seller.image_url }}" alt="{{ ingredient_info.name }} {{ seller.type }} 이미지" onerror="this.onerror=null;this.src='https://placehold.co/100x100/cccccc/333333?text=사진';">
+                            </div>
+                            <div class="seller_text_content">
+                                <p class="seller_type">{{ seller.type }}</p>
+                                <p class="seller_price">{{ seller.price }}</p>
+                                <span class="buy_link_button">구입링크</span>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="info_message">모든 재료가 충분합니다!</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    /* 이 부분은 이전에 제공해주신 CSS와 동일합니다. */
+    .missing_ingredients_section {
+        background-color: #fefefe;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .missing_ingredient_item {
+        width: 400px;
+        border: 1px solid #ffdada;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 25px;
+        background-color: #fffaf5;
+        box-shadow: 0 1px 5px rgba(0,0,0,0.03);
+    }
+
+    .ingredient_name_header {
+        text-align: left;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px dashed #ffdada;
+    }
+
+    .ingredient_name_header h4 {
+        color: #ff6f61;
+        font-size: 1.6em;
+        margin: 0;
+    }
+
+    .seller_grid {
+    
+        gap: 15px;
+        /* justify-content: space-around; /* 각 항목 주변에 균등한 공간 배분 (선택 사항) */
+    }
+
+    .seller_card {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 15px;
+        margin: 0;
+        background-color: #fff;
+        border: 2px solid #eee;
+        border-radius: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        text-decoration: none;
+        color: #333;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .seller_card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        border-color: #ff6f61;
+    }
+
+    .seller_image_wrapper {
+        flex-shrink: 0;
+        width: 150px;
+        height: 120px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-right: 15px;
+    }
+
+    .seller_card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 0;
+    }
+
+    .seller_text_content {
+        flex-grow: 1;
+        text-align: center;
+    }
+
+    .seller_type {
+        font-size: 1.1em;
+        font-weight: bold;
+        color: #555;
+        margin-bottom: 3px;
+    }
+
+    .seller_description {
+        font-size: 0.9em;
+        color: #777;
+        margin-bottom: 5px;
+        line-height: 1.4;
+        word-break: keep-all;
+    }
+
+    .seller_price {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #ff6f61;
+        margin-bottom: 10px;
+    }
+
+    .buy_link_button {
+        display: inline-block;
+        background-color: #ffe0e0;
+        color: #ff6f61;
+        padding: 8px 15px;
+        border-radius: 8px;
+        font-size: 0.9em;
+        font-weight: 600;
+        transition: background-color 0.2s ease;
+        text-align: center;
+        border: 1px solid #ffbdbd;
+    }
+
+    .seller_card:hover .buy_link_button {
+        background-color: #ffbdbd;
+    }
+
+    /* ... (기존 CSS) ... */
+
+    .missing_items_grid {
+        display: grid;
+        /* 필요한 경우 컬럼 수를 조절하세요. 예를 들어 2개 컬럼 */
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* missing_ingredient_item의 width에 맞춰 조절 */
+        gap: 30px; /* 아이템 간 간격 */
+        justify-content: center; /* 그리드 아이템 가운데 정렬 */
+        padding: 20px; /* 전체 섹션에 패딩 추가 */
+    }
+
+    /* 기존 .missing_ingredient_item의 width를 제거하거나, 100%로 변경하여 그리드에 맞게 확장되도록 함 */
+    .missing_ingredient_item {
+        /* width: 400px; */ /* 이 부분을 제거하거나 100%로 변경 */
+        width: 100%; /* 그리드 아이템의 너비를 부모 그리드 컬럼에 맞춤 */
+        max-width: 450px; /* 선택 사항: 각 아이템의 최대 너비 지정 */
+        border: 1px solid #ffdada;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 0; /* 부모 그리드에서 gap으로 간격 조절하므로 제거 */
+        background-color: #fffaf5;
+        box-shadow: 0 1px 5px rgba(0,0,0,0.03);
+        box-sizing: border-box; /* 패딩과 보더가 너비에 포함되도록 */
+    }
+
+/* ... (나머지 CSS) ... */
+@media (max-width: 480px) {
+    .missing_items_grid {
+        grid-template-columns: 1fr; /* 모바일에서는 1개 컬럼 */
+    }
+    .missing_ingredient_item {
+        max-width: none; /* 모바일에서 최대 너비 제한 해제 */
+    }
+    /* ... (기존 모바일 반응형 CSS) ... */
+}
+
+    @media (max-width: 480px) {
+         .missing_items_grid {
+            grid-template-columns: 1fr; /* 모바일에서는 1개 컬럼 */
+        }
+        .missing_ingredient_item {
+            max-width: none; /* 모바일에서 최대 너비 제한 해제 */
+        }
+        .missing_ingredient_item {
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        .ingredient_name_header h4 {
+            font-size: 1.4em;
+        }
+       
+        .seller_grid {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 작은 화면에서는 auto-fit 사용 */
+        }
+
+        .seller_card {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            max-width: 250px;
+        }
+        .seller_image_wrapper {
+            margin-right: 0;
+            margin-bottom: 10px;
+            width: 80px;
+            height: 80px;
+        }
+        .seller_text_content {
+            text-align: center;
+        }
+        .buy_link_button {
+            width: 100%;
+            box-sizing: border-box;
+        }
+    }
+</style>
+{% endblock %}

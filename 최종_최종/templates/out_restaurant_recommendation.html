@@ -1,0 +1,154 @@
+{% extends 'base_layout.html' %} {# base_layout.html 상속 #}
+
+{% block page_title %}외식 추천{% endblock %} {# 페이지 제목 설정 #}
+
+{% block content %} {# base_layout.html의 'content' 블록에 내용 삽입 #}
+<div class="content_section">
+    <h2>🍜 밖에서 먹자!</h2>
+    <p class="guide_text">어떤 메뉴를 드시고 싶으신가요? 메뉴를 입력하시면 주변 맛집을 추천해 드립니다.</p>
+
+    <form method="POST" action="{{ url_for('out_restaurant_recommendation') }}"> {# Flask 라우트 'out_restaurant_recommendation'으로 POST 요청 #}
+        <label for="menu_input" class="sr_only">먹고 싶은 메뉴:</label> {# 스크린 리더용 레이블 #}
+        <input
+            type="text"
+            id="menu_input"
+            name="menu" {# Flask의 request.form.get('menu')와 일치 #}
+            placeholder="예: 파스타, 김치찌개, 치킨"
+            required
+            aria-label="먹고 싶은 메뉴 입력" {# 접근성을 위한 레이블 #}
+        >
+        <input type="submit" value="추천 받기">
+    </form>
+
+    {% if error_message %} {# Flask에서 전달된 오류 메시지가 있을 경우 표시 #}
+        <p class="error_message">{{ error_message }}</p>
+    {% endif %}
+
+    {% if recommended_restaurants_list %} {# 추천 식당 목록이 있을 경우 #}
+        <h3>추천 식당 리스트</h3>
+        <div class="restaurant_card_grid"> {# 식당 카드 그리드 컨테이너 #}
+            {% for restaurant in recommended_restaurants_list %} {# 추천 식당 목록을 반복하여 표시 #}
+                <div class="card_element restaurant_card"> {# base_layout.html의 카드 스타일 상속 #}
+                    <div class="restaurant_image_container">
+                        <img src="{{ restaurant.image_url }}" alt="{{ restaurant.name }} 이미지" onerror="this.onerror=null;this.src='https://placehold.co/150x150/cccccc/333333?text=사진';"> {# 이미지 크기 조정 #}
+                    </div>
+                    <a href="{{ restaurant.link }}" target="_blank" rel="noopener noreferrer" class="restaurant_link_wrapper">
+                        <div class="restaurant_info_text">
+                            
+                            <h4>{{ restaurant.name }}</h4>
+                        
+                            <p class="restaurant_address">{{ restaurant.address }}</p>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% elif recommended_restaurants_list is not none and not recommended_restaurants_list %} {# 추천 식당 목록이 비어있을 경우 (메뉴는 입력했지만 결과가 없을 때) #}
+        <p class="info_message">죄송합니다. 입력하신 메뉴에 대한 식당을 찾을 수 없습니다.</p>
+    {% endif %}
+</div>
+
+<style>
+    /* --- 식당 카드 그리드 컨테이너 스타일 */
+    .restaurant_card_grid {
+        display: grid;
+        grid-template-columns: 1fr; /* 1열 레이아웃 */
+        gap: 20px;
+        justify-items: center; /* 아이템 중앙 정렬 */
+        margin-top: 30px;
+    }
+
+    /* --- 식당 카드 스타일 */
+    .restaurant_card {
+        padding: 20px;
+        min-height: auto;
+        max-width: 600px;
+        width: 100%;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        text-align: left;
+        background-color: #fff;
+        border-radius: 20px;
+        box-shadow: 3px 3px 15px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .restaurant_card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.18);
+    }
+
+    /* --- 식당 이미지 컨테이너 */
+    .restaurant_image_container {
+        flex-shrink: 0;
+        width: 150px;
+        height: 150px;
+        border: 2px solid #eee;
+        border-radius: 15px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-right: 20px;
+    }
+
+    .restaurant_image_container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 12px;
+    }
+
+    /* --- 식당 정보 텍스트 컨테이너 */
+    .restaurant_info_text {
+        flex-grow: 1;
+    }
+
+    /* --- 식당 이름 스타일 */
+    .restaurant_card h4 {
+        font-size: 1.6em;
+        margin-bottom: 5px;
+        color: #ff6f61;
+        white-space: normal;
+        word-break: keep-all;
+        overflow: visible;
+        text-overflow: clip;
+        display: block;
+    }
+
+    /* --- 식당 주소 스타일 */
+    .restaurant_address {
+        font-size: 1.1em;
+        color: #666;
+        white-space: normal;
+        word-break: keep-all;
+        overflow: visible;
+        text-overflow: clip;
+        display: block;
+    }
+
+    /* --- 미디어 쿼리 - 모바일 (화면 너비 600px 이하) */
+    @media (max-width: 600px) {
+        .restaurant_card {
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+        }
+        .restaurant_image_container {
+            margin-right: 0;
+            margin-bottom: 15px;
+            width: 120px;
+            height: 120px;
+        }
+        .restaurant_card h4 {
+            font-size: 1.4em;
+            text-align: center;
+        }
+        .restaurant_address {
+            font-size: 1em;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}

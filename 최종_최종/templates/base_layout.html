@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <!-- 반응형 웹 디자인을 위한 뷰포트 설정 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block page_title %}음식 추천{% endblock %}</title>
+  <!-- Google Fonts에서 'Inter' 폰트 로드 (깔끔한 디자인을 위해) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* --- 전체 바디 스타일: 폰트, 배경, 여백, 텍스트 정렬 */
+    body {
+      font-family: 'Inter', 'Arial', sans-serif; /* Inter 폰트 우선, Arial 폴백 */
+      background-color: #fffaf0; /* 부드러운 베이지 배경 */
+      margin: 0;
+      padding: 20px; /* 전체 페이지 패딩 */
+      text-align: center; /* 기본 텍스트 정렬 */
+      line-height: 1.6; /* 줄 간격 */
+      color: #333; /* 기본 텍스트 색상 */
+    }
+
+    /* --- 제목 (h1, h2, h3, h4) 스타일: 강조 색상, 하단 여백, 폰트 굵기 */
+    h1, h2, h3, h4 {
+      color: #ff6f61; /* 오렌지-레드 강조 색상 */
+      margin-bottom: 20px;
+      font-weight: 600; /* 폰트 굵기 */
+    }
+
+    /* --- 입력 필드 (텍스트, 숫자) 및 텍스트 영역 스타일 */
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: calc(100% - 30px); /* 패딩을 고려한 너비 */
+      max-width: 400px; /* 최대 너비 제한 */
+      padding: 12px 15px;
+      font-size: 1.05rem;
+      border-radius: 10px; /* 둥근 모서리 */
+      border: 1px solid #ccc; /* 연한 회색 테두리 */
+      background-color: #fffaf5; /* 배경 색상 */
+      margin: 10px 0; /* 상하 여백 */
+      box-sizing: border-box; /* 너비에 패딩 포함 */
+    }
+
+    /* --- 버튼 및 제출 버튼 스타일 */
+    button,
+    input[type="submit"] {
+      background-color: #ffe0e0; /* 부드러운 핑크 배경 */
+      padding: 12px 30px;
+      border: none; /* 테두리 없음 */
+      border-radius: 10px; /* 둥근 모서리 */
+      font-size: 1.05rem;
+      cursor: pointer; /* 호버 시 포인터 */
+      transition: all 0.3s ease; /* 모든 속성 부드러운 전환 */
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.1); /* 미묘한 그림자 */
+      margin: 5px; /* 버튼 간 간격 */
+    }
+
+    /* --- 버튼 및 제출 버튼 호버 효과 */
+    button:hover,
+    input[type="submit"]:hover {
+      background-color: #ffbdbd; /* 호버 시 색상 변경 */
+      transform: translateY(-2px); /* 호버 시 약간 위로 이동 */
+      box-shadow: 4px 4px 12px rgba(0,0,0,0.15); /* 더 강한 그림자 */
+    }
+
+    /* --- 링크 스타일 */
+    a {
+      text-decoration: none; /* 밑줄 없음 */
+      color: #555; /* 진한 회색 텍스트 */
+      font-weight: bold; /* 굵은 글씨 */
+      transition: color 0.3s ease; /* 부드러운 색상 전환 */
+    }
+
+    /* --- 링크 호버 효과 */
+    a:hover {
+      color: #ff6f61; /* 호버 시 강조 색상으로 변경 */
+    }
+
+    /* --- 에러 메시지 스타일 */
+    .error_message {
+      color: #d33; /* 빨간색 텍스트 */
+      margin: 15px 0; /* 상하 여백 */
+      font-weight: bold; /* 굵은 글씨 */
+      background-color: #ffebeb; /* 연한 빨간색 배경 */
+      padding: 10px; /* 내부 패딩 */
+      border-radius: 8px; /* 둥근 모서리 */
+      border: 1px solid #d33; /* 빨간색 테두리 */
+    }
+
+    /* --- 푸터 스타일 */
+    .page_footer {
+      margin-top: 40px; /* 상단 여백 */
+      padding-top: 20px; /* 내부 상단 패딩 */
+      border-top: 1px solid #eee; /* 상단 테두리 */
+      color: #777; /* 연한 회색 텍스트 */
+    }
+
+    /* --- 푸터 내 '첫 페이지로 돌아가기' 링크 스타일 (다른 버튼보다 작게) */
+    .footer_home_link {
+        font-size: 0.9em; /* 작은 폰트 크기 */
+        padding: 8px 15px; /* 줄어든 패딩 */
+        border-radius: 8px; /* 둥근 모서리 */
+        background-color: #f0f0f0; /* 배경 색상 추가 */
+        color: #555; /* 텍스트 색상 */
+        display: inline-block; /* 패딩 적용을 위해 */
+        box-shadow: 1px 1px 5px rgba(0,0,0,0.05); /* 미묘한 그림자 */
+    }
+
+    .footer_home_link:hover {
+        background-color: #e0e0e0; /* 호버 시 배경 색상 변경 */
+        color: #ff6f61; /* 호버 시 텍스트 색상 변경 */
+        transform: translateY(-1px); /* 약간 위로 이동 */
+        box-shadow: 2px 2px 8px rgba(0,0,0,0.1); /* 더 강한 그림자 */
+    }
+
+    /* --- 카드 스타일 (식당, 요리 정보 등을 표시하는 박스) */
+    .card_element {
+      background-color: #fff; /* 흰색 배경 */
+      padding: 20px; /* 내부 패딩 */
+      border-radius: 15px; /* 둥근 모서리 */
+      margin: 15px; /* 외부 여백 */
+      display: inline-block; /* 가로 정렬을 위한 인라인-블록 */
+      width: calc(33% - 30px); /* 3열 레이아웃 (반응형) */
+      max-width: 300px; /* 최대 너비 제한 */
+      vertical-align: top; /* 상단 정렬 */
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.1); /* 그림자 */
+      text-align: center; /* 텍스트 정렬 */
+      transition: transform 0.2s ease; /* 부드러운 변형 전환 */
+    }
+
+    /* --- 카드 호버 효과 */
+    .card_element:hover {
+        transform: translateY(-5px); /* 호버 시 약간 위로 이동 */
+    }
+
+    /* --- 카드 내 이미지 스타일 */
+    .card_element img {
+      width: 100%; /* 부모 너비에 맞춤 */
+      height: 150px; /* 고정 높이 */
+      object-fit: cover; /* 잘리지 않고 채우기 */
+      border-radius: 10px; /* 둥근 모서리 */
+      margin-bottom: 15px; /* 하단 여백 */
+    }
+
+    /* --- 카드 내 제목 (h4) 스타일 */
+    .card_element h4 {
+      margin-top: 0; /* 상단 여백 제거 */
+      font-size: 1.2em;
+      color: #333;
+    }
+
+    /* --- 카드 내 문단 (p) 스타일 */
+    .card_element p {
+      font-size: 0.95em;
+      color: #666;
+    }
+
+    /* --- 메인 콘텐츠 컨테이너 스타일 */
+    .main_container {
+      max-width: 960px; /* 최대 너비 */
+      margin: 0 auto; /* 중앙 정렬 */
+      padding: 20px; /* 내부 패딩 */
+      background-color: #ffffff; /* 흰색 배경 */
+      border-radius: 20px; /* 둥근 모서리 */
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05); /* 부드러운 그림자 */
+    }
+
+    /* --- 정보 메시지 스타일 (예: 검색 결과 없음) */
+    .info_message {
+        margin-top: 20px;
+        font-size: 1.1em;
+        color: #666;
+        background-color: #f0f8ff;
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid #cceeff;
+    }
+
+    /* --- 스크린 리더 전용 텍스트 (시각적으로 숨김) */
+    .sr_only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0,0,0,0);
+        border: 0;
+    }
+
+    /* --- 미디어 쿼리 - 태블릿 및 소형 데스크톱 (화면 너비 768px 이하) */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px; /* 패딩 약간 줄이기 */
+      }
+      .card_element {
+        width: calc(50% - 30px); /* 2열 레이아웃 */
+      }
+    }
+
+    /* --- 미디어 쿼리 - 모바일 (화면 너비 480px 이하) */
+    @media (max-width: 480px) {
+      .card_element {
+        width: calc(100% - 30px); /* 1열 레이아웃 */
+      }
+      input[type="text"],
+      input[type="number"],
+      textarea {
+        width: 100%; /* 모바일에서 전체 너비 */
+      }
+      button,
+      input[type="submit"] {
+        width: 100%; /* 모바일에서 버튼 전체 너비 */
+        margin: 5px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="main_container">
+    {% block content %}
+    
+    
+    {% endblock %} {# 실제 페이지 콘텐츠를 위한 블록 #}
+
+    {% block footer_section %}
+    <div class="page_footer">
+      <a href="{{ url_for('main_page') }}" class="footer_home_link">🏠 첫 페이지로 돌아가기</a>
+    </div>
+    {% endblock %}
+  </div>
+</body>
+</html>

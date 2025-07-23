@@ -1,0 +1,240 @@
+{% extends 'base_layout.html' %} {# base_layout.html 상속 #}
+
+{% block page_title %}{{ recipe.name }} 레시피{% endblock %} {# 페이지 제목 설정 #}
+
+{% block content %} {# base_layout.html의 'content' 블록에 내용 삽입 #}
+<div class="content_section recipe_detail">
+    <h2 class="recipe_title">🍳 {{ recipe.name }} 레시피</h2>
+
+    <div class="recipe_info_meta">
+        <p><strong>인분:</strong> {{ recipe.serving_number }}</p> {# 인분 정보 표시 #}
+        <p><strong>난이도:</strong> {{ recipe.level }}</p> {# 난이도 정보 표시 #}
+    </div>
+
+    <div class="recipe_section">
+        <h3>재료</h3>
+        <ul class="ingredients_list">
+            {# recipe.original_ingredients_list가 비어있을 경우 대체 텍스트 표시 #}
+            {% if recipe.original_ingredients_list %}
+                {% for ingredient in recipe.original_ingredients_list %} {# 레시피의 재료 목록 반복 표시 #}
+                    <li>{{ ingredient }}</li>
+                {% endfor %}
+            {% else %}
+                <li>재료 목록 준비 중... (실제 DB 연동 시 표시됩니다)</li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <div class="recipe_section">
+        <h3>조리 순서</h3>
+        <p class="recipe_text_display">{{ recipe.recipe_text | replace('\n', '<br>') | safe }}</p> {# 레시피 텍스트 표시 #}
+    </div>
+
+    <div class="recipe_section video_section">
+        <h3>영상 보기</h3>
+        <p class="guide_text">영상 섬네일이 안나오면 클릭을 해주세요!</p>
+        <div class="video_grid_container">
+            {% for vid in recipe.video_links %}
+                <iframe
+                    width="100%"
+                    height="200"
+                    src="{{ vid.link }}?rel=0"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen
+                    title="{{ vid.title }}">
+                </iframe>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# 모자란 재료 구입 버튼 추가 #}
+    <div class="recipe_section buy_missing_ingredients_button_section">
+        <a href="{{ url_for('missing_ingredients') }}" class="button_link"> {# 라우트 이름 변경 #}
+            🛒 모자란 재료 구입하러 가기
+        </a>
+    </div>
+
+</div>
+
+<style>
+    /* --- 레시피 상세 페이지 섹션 스타일 */
+    .recipe_detail {
+        text-align: left; /* 텍스트 왼쪽 정렬 */
+        max-width: 860px; /* 레시피 콘텐츠의 최대 너비 */
+        margin: 0 auto; /* 중앙 정렬 */
+        padding: 25px;
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .recipe_title {
+        text-align: center; /* 레시피 제목 중앙 정렬 */
+        color: #ff6f61;
+        margin-bottom: 30px;
+        font-size: 2em;
+    }
+
+    .recipe_info_meta {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 1.1em;
+        color: #777;
+    }
+    .recipe_info_meta strong {
+        color: #555;
+    }
+
+    /* --- 레시피 섹션 스타일 */
+    .recipe_section {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .recipe_section:last-child {
+        border-bottom: none;
+    }
+
+    .recipe_section h3 {
+        color: #ff6f61;
+        font-size: 1.5em;
+        margin-bottom: 15px;
+        border-left: 5px solid #ff6f61;
+        padding-left: 10px;
+    }
+
+    /* --- 재료 목록 스타일 */
+    .ingredients_list {
+        list-style-type: none;
+        padding-left: 0;
+    }
+
+    .ingredients_list li {
+        background-color: #fff5ee;
+        margin-bottom: 8px;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-size: 1.1em;
+        color: #555;
+        display: flex;
+        align-items: center;
+    }
+
+    .ingredients_list li::before {
+        content: '✔️';
+        margin-right: 10px;
+        color: #ff6f61;
+        font-size: 0.9em;
+    }
+
+    /* --- 레시피 텍스트 표시 스타일 */
+    .recipe_text_display {
+        font-size: 1.1em;
+        line-height: 1.8;
+        color: #444;
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid #eee;
+        white-space: pre-wrap;
+    }
+
+    /* --- 여러 비디오를 위한 그리드 컨테이너 */
+    .video_grid_container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        justify-content: center;
+    }
+
+    .video_item {
+        position: relative;
+        width: 100%;
+        padding-bottom: 56.25%; /* 16:9 비율 유지 */
+        height: 0;
+        overflow: hidden;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    .video_item iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+
+    .video_title {
+        position: relative;
+        margin-top: 10px;
+        font-size: 0.9em;
+        color: #555;
+        text-align: center;
+        padding: 0 5px;
+        word-break: keep-all;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* 2줄로 제한 */
+        -webkit-box-orient: vertical;
+    }
+
+    /* 새로운 '모자란 재료 구입하러 가기' 버튼 스타일 */
+    .buy_missing_ingredients_button_section {
+        text-align: center;
+        margin-top: 30px;
+        border-bottom: none; /* 이 섹션에서는 하단 테두리 제거 */
+    }
+
+    .button_link {
+        display: inline-block;
+        background-color: #ff6f61; /* 강조 색상 */
+        color: white;
+        padding: 15px 30px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 1.2em;
+        font-weight: bold;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        box-shadow: 0 4px 10px rgba(255, 111, 97, 0.3);
+    }
+
+    .button_link:hover {
+        background-color: #ff4d4d;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(255, 111, 97, 0.4);
+    }
+
+    /* --- 미디어 쿼리 - 모바일 (화면 너비 480px 이하) */
+    @media (max-width: 480px) {
+        .recipe_detail {
+            padding: 15px;
+        }
+        .recipe_title {
+            font-size: 1.8em;
+        }
+        .recipe_section h3 {
+            font-size: 1.3em;
+        }
+        .ingredients_list li, .recipe_text_display {
+            font-size: 1em;
+        }
+        .video_grid_container {
+            grid-template-columns: 1fr;
+        }
+        .button_link {
+            width: 90%; /* 모바일에서 너비 조정 */
+            padding: 12px 20px;
+            font-size: 1.1em;
+        }
+    }
+</style>
+{% endblock %}
